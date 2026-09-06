@@ -101,7 +101,6 @@ async function handleNavigation(details) {
     let domainStillOpen = false;
     for (const tab of tabs) {
       try {
-        if (tab.id === details.tabId) continue;
         const tabUrl = new URL(tab.url);
         if (getRootDomain(tabUrl.hostname) === root) {
           domainStillOpen = true;
@@ -187,6 +186,18 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 
   if (msg.type === 'set-initial-password') {
     handleSetInitialPassword(msg, sendResponse);
+    return true;
+  }
+
+  if (msg.type === 'get-unlock-status') {
+    getUnlockStatus().then(status => {
+      sendResponse(status);
+    });
+    return true;
+  }
+
+  if (msg.type === 'lock-all') {
+    handleLockAll(sendResponse);
     return true;
   }
 });
@@ -286,6 +297,41 @@ async function handleSaveSettings(msg, sendResponse) {
   }
 
   await chrome.storage.local.set(newSettings);
+  sendResponse({ success: true });
+}
+
+async function getUnlockStatus() {
+  const settings = await getSettings();
+  if (settings.blockedDomains.length === 0) return { anyUnlocked: false };
+
+  const active = await getActiveUnlocks();
+  const unlocked = await getTemporarilyUnlocked();
+  const now = Date.now();
+
+  for (const domain of settings.blockedDomains) {
+    const root = getRootDomain(domain);
+    if (active[root] || (unlocked[root] && now < unlocked[root])) {
+      return { anyUnlocked: true };
+    }
+  }
+  return { anyUnlocked: false };
+}
+
+async function handleLockAll(sendResponse) {
+  const settings = await getSettings();
+  await chrome.storage.local.set({ activeUnlocks: {}, temporarilyUnlocked: {} });
+
+  const tabs = await chrome.tabs.query({});
+  for (const tab of tabs) {
+    try {
+      const url = new URL(tab.url);
+      if (domainMatchesBlocked(url.hostname, settings.blockedDomains)) {
+        const lockedUrl = chrome.runtime.getURL('blocked.html') + '?domain=' + encodeURIComponent(url.hostname);
+        chrome.tabs.update(tab.id, { url: lockedUrl });
+      }
+    } catch (e) {}
+  }
+
   sendResponse({ success: true });
 }
 

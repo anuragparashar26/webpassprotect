@@ -15,7 +15,8 @@ Subdomains (`www.`, `m.`, etc.) are blocked automatically.
 - **Blocked site** → lock screen asks for your password → **Unlock**
 - The site stays unlocked while you use it; the timer starts **when you leave** (close tab, navigate away)
 - After the duration expires, the site is blocked again
-- **Settings:** extension icon → Options (requires current password)
+- **Lock Now:** click the extension icon → toggle the switch to immediately lock all unlocked sites
+- **Settings:** extension icon → Settings link (or right-click → Options), requires current password
 - **Duration:** presets (5m, 15m, 30m, 1h) or custom minutes
 
 ## Security
