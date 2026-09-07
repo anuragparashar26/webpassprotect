@@ -90,7 +90,7 @@ async function handleNavigation(details) {
   const root = getRootDomain(hostname);
 
   if (await isDomainBlocked(hostname)) {
-    const lockedUrl = chrome.runtime.getURL('blocked.html') + '?domain=' + encodeURIComponent(hostname);
+    const lockedUrl = chrome.runtime.getURL('blocked.html') + '?url=' + encodeURIComponent(details.url);
     chrome.tabs.update(details.tabId, { url: lockedUrl });
     return;
   }
@@ -326,7 +326,7 @@ async function handleLockAll(sendResponse) {
     try {
       const url = new URL(tab.url);
       if (domainMatchesBlocked(url.hostname, settings.blockedDomains)) {
-        const lockedUrl = chrome.runtime.getURL('blocked.html') + '?domain=' + encodeURIComponent(url.hostname);
+        const lockedUrl = chrome.runtime.getURL('blocked.html') + '?url=' + encodeURIComponent(tab.url);
         chrome.tabs.update(tab.id, { url: lockedUrl });
       }
     } catch (e) {}

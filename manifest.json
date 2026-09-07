@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "WebPassProtect",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Password-protected website blocker for Chromium browsers. Blocks specified domains and requires a password to unlock.",
   "permissions": [
     "storage",
