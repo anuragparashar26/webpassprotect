@@ -371,6 +371,6 @@ chrome.runtime.onInstalled.addListener(async (details) => {
 
 setInterval(cleanupExpiredUnlocks, 60000);
 
-(async () => {
+chrome.runtime.onStartup.addListener(async () => {
   await chrome.storage.local.set({ activeUnlocks: {}, temporarilyUnlocked: {} });
-})();
+});
